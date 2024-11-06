@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-world-app
+  name: postgresql
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hello-world-app
+      app: postgresql
   template:
     metadata:
       labels:
-        app: hello-world-app
+        app: postgresql
     spec:
       containers:
-      - name: hello-world-app
-        image: ivakadock/hello-world-app:latest
+      - name: postgresql
+        image: postgres:13
         ports:
-        - containerPort: 5000
+        - containerPort: 5432
         env:
         - name: POSTGRES_USER
           valueFrom:
@@ -28,7 +28,3 @@ spec:
             secretKeyRef:
               name: postgresql-secret
               key: POSTGRES_PASSWORD
-        - name: POSTGRES_HOST
-          value: postgresql
-      imagePullSecrets:
-      - name: dockerhub-secret
