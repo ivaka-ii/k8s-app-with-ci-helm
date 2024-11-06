@@ -1,0 +1,32 @@
+# values.yaml
+app:
+  name: hello-world-app
+  image:
+    repository: ivakadock/hello-world-app
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: NodePort
+    port: 5000
+    nodePort: 30000
+  env:
+    - name: POSTGRES_HOST
+      value: "{{ .Release.Name }}-postgresql"
+    - name: POSTGRES_USER
+      value: "{{ .Values.postgresql.auth.username }}"
+    - name: POSTGRES_PASSWORD
+      value: "{{ .Values.postgresql.auth.password }}"
+    - name: POSTGRES_DB
+      value: "{{ .Values.postgresql.auth.database }}"
+
+postgresql:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "13"
+  auth:
+    username: postgres
+    password: postgres
+    database: postgres
+  service:
+    port: 5432
