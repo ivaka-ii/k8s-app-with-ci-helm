@@ -144,6 +144,100 @@ To restart a pod, delete it and let the deployment create a new one:
 kubectl delete pod <pod-name>
 ```
 
+## PostgreSQL Integration
+
+### Prerequisites
+- PostgreSQL 13
+- psycopg2-binary
+- SQLAlchemy
+
+### Database Setup
+
+1. **Create PostgreSQL Secret**:
+```sh
+kubectl apply -f postgresql-secret.yml
+```
+
+Let's add PostgreSQL connectivity documentation to the README.md.
+
+Plan:
+1. Add PostgreSQL prerequisites
+2. Document secret creation
+3. Add PostgreSQL deployment steps
+4. Document connectivity testing
+5. Add troubleshooting section
+
+```markdown
+## PostgreSQL Integration
+
+### Prerequisites
+- PostgreSQL 13
+- psycopg2-binary
+- SQLAlchemy
+
+### Database Setup
+
+1. **Create PostgreSQL Secret**:
+```sh
+kubectl apply -f postgresql-secret.yml
+```
+
+2. **Deploy PostgreSQL**:
+```sh
+kubectl apply -f postgresql-deployment.yml
+kubectl apply -f postgresql-service.yml
+```
+
+3. **Verify PostgreSQL Deployment**:
+```sh
+kubectl get pods -l app=postgresql
+kubectl get services postgresql
+```
+
+### Testing Database Connectivity
+
+1. **Check Service Endpoints**:
+```sh
+kubectl get endpoints postgresql
+```
+
+2. **Test Database Connection**:
+```sh
+# Enter PostgreSQL pod
+kubectl exec -it $(kubectl get pod -l app=postgresql -o jsonpath='{.items[0].metadata.name}') -- psql -U postgres
+
+# Inside psql
+\l           # List databases
+\dt          # List tables
+\q           # Quit
+```
+
+3. **Verify App Connection**:
+```sh
+# Check app logs
+kubectl logs -l app=hello-world-app
+
+# Test app endpoint
+curl http://$(minikube ip):30000
+```
+
+### Troubleshooting
+
+1. **Check PostgreSQL Logs**:
+```sh
+kubectl logs -l app=postgresql
+```
+
+2. **Verify Environment Variables**:
+```sh
+kubectl exec -it $(kubectl get pod -l app=hello-world-app -o jsonpath='{.items[0].metadata.name}') -- env | grep POSTGRES
+```
+
+3. **Test DNS Resolution**:
+```sh
+kubectl run -it --rm --restart=Never dns-test --image=busybox -- nslookup postgresql
+```
+
 ## License
 
 This project is licensed under the MIT License.
