@@ -60,13 +60,13 @@ Build the Docker image for the Flask application:
 ```sh
 docker build -t ivakadock/hello-world-app:latest .
 ```
-## 3.1 Check docker image availability 
+#### 3.1 Check docker image availability 
 
 ```sh
 docker images
 ```
 
-## 3.2 In case you want to run the local environment Dockerfile 
+#### 3.2 In case you want to run the local environment Dockerfile 
 
 ```sh
 docker run -p 5000:5000 ivakadock/hello-world-app
