@@ -250,6 +250,118 @@ kubectl exec -it $(kubectl get pod -l app=hello-world-app -o jsonpath='{.items[0
 kubectl run -it --rm --restart=Never dns-test --image=busybox -- nslookup postgresql
 ```
 
+
+# Deployment with Helm
+
+## Prerequisites
+
+- Minikube installed
+- Helm installed
+
+## Steps
+
+1. **Start Minikube**:
+   ```sh
+   minikube start
+   ```
+
+2. **Delete Existing Kubernetes Deployment**:
+   If you have an existing deployment, delete it:
+   ```sh
+   kubectl delete deployment my-python-app
+   kubectl delete service my-python-app-service
+   ```
+
+3. **Create a Helm Chart**:
+   If you don't already have a Helm chart, create one:
+   ```sh
+   helm create my-helm-chart
+   ```
+
+4. **Update `values.yaml`**:
+   Replace the contents of `values.yaml` in your Helm chart with the following configuration:
+   ```yaml
+   app:
+     name: hello-world-app
+     image:
+       repository: ivakadock/hello-world-app
+       tag: latest
+       pullPolicy: IfNotPresent
+     service:
+       type: NodePort
+       port: 5000
+       nodePort: 30000
+     env:
+       - name: POSTGRES_HOST
+         value: "{{ .Release.Name }}-postgresql"
+       - name: POSTGRES_USER
+         value: "{{ .Values.postgresql.auth.username }}"
+       - name: POSTGRES_PASSWORD
+         value: "{{ .Values.postgresql.auth.password }}"
+       - name: POSTGRES_DB
+         value: "{{ .Values.postgresql.auth.database }}"
+
+   postgresql:
+     enabled: true
+     image:
+       repository: postgres
+       tag: "13"
+     auth:
+       username: postgres
+       password: postgres
+       database: postgres
+     service:
+       port: 5432
+   ```
+
+5. **Update the Deployment Template**:
+   Modify the `deployment.yaml` template in your Helm chart to use the values from `values.yaml`. For example:
+   ```yaml
+   apiVersion: apps/v1
+   kind: Deployment
+   metadata:
+     name: {{ .Values.app.name }}
+   spec:
+     replicas: 1
+     selector:
+       matchLabels:
+         app: {{ .Values.app.name }}
+     template:
+       metadata:
+         labels:
+           app: {{ .Values.app.name }}
+       spec:
+         containers:
+         - name: {{ .Values.app.name }}
+           image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
+           ports:
+           - containerPort: {{ .Values.app.service.port }}
+           env:
+           {{- range .Values.app.env }}
+           - name: {{ .name }}
+             value: {{ .value | quote }}
+           {{- end }}
+   ```
+
+6. **Deploy the Helm Chart**:
+   Deploy the Helm chart to your Kubernetes cluster:
+   ```sh
+   helm install my-release my-helm-chart
+   ```
+
+7. **Access the Application**:
+   Get the URL to access your application:
+   ```sh
+   minikube service my-release-hello-world-app --url
+   ```
+
+8. **Curl the Application**:
+   Use the URL obtained from the previous step to `curl` your application. For example:
+   ```sh
+   curl $(minikube service my-release-hello-world-app --url)
+   ```
+
+
 ## License
 
 This project is licensed under the MIT License.
