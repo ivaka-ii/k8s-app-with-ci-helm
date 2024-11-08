@@ -16,6 +16,7 @@ Start Minikube to create a local Kubernetes cluster:
 
 ```sh
 minikube start
+```
 
 ### Here is a 
 
@@ -23,7 +24,7 @@ README.md
 
  file that explains how to deploy and access the `hello-world-app` using Minikube and Kubernetes:
 
-```markdown
+markdown
 # Hello World App Deployment
 
 This repository contains the necessary files to deploy a simple Flask application (`hello-world-app`) using Minikube and Kubernetes.
@@ -58,6 +59,17 @@ Build the Docker image for the Flask application:
 
 ```sh
 docker build -t ivakadock/hello-world-app:latest .
+```
+## 3.1 Check docker image availability 
+
+```sh
+docker images
+```
+
+## 3.2 In case you want to run the local environment Dockerfile 
+
+```sh
+docker run -p 5000:5000 ivakadock/hello-world-app
 ```
 
 ### 4. Apply Deployment Configuration
